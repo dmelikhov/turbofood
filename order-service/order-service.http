@@ -1,0 +1,10 @@
+# @name login
+POST http://keycloak:8080/realms/turbofood/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+client_id=webclient&username=john&password=john&grant_type=password
+
+###
+
+POST http://localhost:9002/orders
+Authorization: Bearer {{login.response.body.access_token}}

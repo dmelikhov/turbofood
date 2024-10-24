@@ -1,0 +1,127 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: dmelikhov
+      changes:
+        - createTable:
+            tableName: restaurant
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: owner_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: website
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: accepting_orders
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: menu_item
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: restaurant_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_menu_item_restaurant
+                    referencedTableName: restaurant
+                    referencedColumnNames: id
+                    deleteCascade: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: DECIMAL(12, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: available
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+        - insert:
+            tableName: restaurant
+            columns:
+              - column:
+                  name: id
+                  value: '1e2d3c4b-5a6f-7e8d-9c0b-1a2b3c4d5e6f'
+              - column:
+                  name: owner_id
+                  value: '2e3d4c5b-6a7f-8e9d-0c1b-2a3b4c5d6e7f'
+              - column:
+                  name: name
+                  value: 'The Great Restaurant'
+              - column:
+                  name: address
+                  value: '123 Food Street'
+              - column:
+                  name: phone
+                  value: '123-456-7890'
+              - column:
+                  name: website
+                  value: 'https://thegreatrestaurant.com'
+              - column:
+                  name: accepting_orders
+                  value: true
+        - insert:
+            tableName: menu_item
+            columns:
+              - column:
+                  name: id
+                  value: '3e4d5c6b-7a8f-9e0d-1c2b-3a4b5c6d7e8f'
+              - column:
+                  name: restaurant_id
+                  value: '1e2d3c4b-5a6f-7e8d-9c0b-1a2b3c4d5e6f'
+              - column:
+                  name: name
+                  value: 'Spaghetti Carbonara'
+              - column:
+                  name: description
+                  value: 'Classic Italian pasta dish'
+              - column:
+                  name: price
+                  value: 12.99
+              - column:
+                  name: available
+                  value: true

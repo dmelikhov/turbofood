@@ -1,0 +1,90 @@
+name: turbofood
+
+services:
+  postgres:
+    image: postgres:17.2
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+    volumes:
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql:z
+
+  adminer:
+    image: adminer
+    ports:
+      - 7001:8080
+    depends_on:
+      - postgres
+
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=secret
+    ports:
+      - 7002:15672
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres/keycloak?user=postgres&password=secret
+    command:
+      - start-dev
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres
+
+  restaurant-service:
+    build:
+      context: ./restaurant-service/
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/restaurant_service?user=postgres&password=secret
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/turbofood
+    ports:
+      - 9001:8080
+    depends_on:
+      - postgres
+      - keycloak
+
+  order-service:
+    build:
+      context: ./order-service/
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/order_service?user=postgres&password=secret
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/turbofood
+      - SPRING_RABBITMQ_ADDRESSES=amqp://rabbitmq:secret@rabbitmq
+    ports:
+      - 9002:8080
+    depends_on:
+      - postgres
+      - rabbitmq
+      - keycloak
+
+  delivery-service:
+    build:
+      context: ./delivery-service/
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/delivery_service?user=postgres&password=secret
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/turbofood
+      - SPRING_RABBITMQ_ADDRESSES=amqp://rabbitmq:secret@rabbitmq
+    ports:
+      - 9002:8080
+    depends_on:
+      - postgres
+      - rabbitmq
+      - keycloak
+
+  payment-service:
+    build:
+      context: ./payment-mock/
+      dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USERNAME=rabbitmq
+      - RABBITMQ_PASSWORD=secret
+    depends_on:
+      - rabbitmq

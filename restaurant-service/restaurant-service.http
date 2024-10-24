@@ -1,0 +1,25 @@
+# @name login
+POST http://keycloak:8080/realms/turbofood/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+client_id=webclient&username=john&password=john&grant_type=password
+
+###
+
+GET http://localhost:9002/restaurants
+Authorization: Bearer {{login.response.body.access_token}}
+
+###
+
+GET http://localhost:9002/restaurants/1e2d3c4b-5a6f-7e8d-9c0b-1a2b3c4d5e6f
+Authorization: Bearer {{login.response.body.access_token}}
+
+###
+
+GET http://localhost:9002/restaurants/1e2d3c4b-5a6f-7e8d-9c0b-1a2b3c4d5e6f/menu-items
+Authorization: Bearer {{login.response.body.access_token}}
+
+###
+
+GET http://localhost:9002/menu-items/3e4d5c6b-7a8f-9e0d-1c2b-3a4b5c6d7e8f
+Authorization: Bearer {{login.response.body.access_token}}
