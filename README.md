@@ -33,3 +33,6 @@ from the root directory of the project:
 ```
 docker compose up
 ```
+
+## Process diagram
+![turbofood-diagram.png](turbofood-diagram.png)
