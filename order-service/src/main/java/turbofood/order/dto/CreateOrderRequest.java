@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class CreateOrderRequest {
     private UUID restaurantId;
+    private UUID customerId;
     private List<UUID> menuItemIds;
     private String addressTo;
 }

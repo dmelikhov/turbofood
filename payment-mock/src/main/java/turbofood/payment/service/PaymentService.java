@@ -2,6 +2,8 @@ package turbofood.payment.service;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
@@ -18,14 +20,18 @@ public class PaymentService {
 
     private static final Logger LOG = Logger.getLogger(PaymentService.class);
 
-    @Channel("order-events")
+    @Channel("payment-received")
     Emitter<PaymentReceivedEvent> paymentReceivedEventEmitter;
 
-    @Channel("order-events")
+    @Channel("payment-failed")
     Emitter<PaymentFailedEvent> paymentFailedEventEmitter;
 
-    @Incoming("order-events")
-    public void onOrderCreatedEvent(OrderCreatedEvent event) {
+    @Incoming("order-created")
+    public void onOrderCreatedEvent(byte[] b) throws Exception {
+        OrderCreatedEvent event = new JsonObject(Buffer.buffer(b)).mapTo(OrderCreatedEvent.class);
+
+        Thread.sleep(1000L);
+
         // randomly decide if the payment was successful
         if (ThreadLocalRandom.current().nextDouble() < 0.7) {
             LOG.info("Payment received for order " + event.getOrderId());
@@ -36,8 +42,12 @@ public class PaymentService {
         }
     }
 
-    @Incoming("order-events")
-    public void onOrderRejectedEvent(OrderRejectedEvent event) {
+    @Incoming("order-rejected")
+    public void onOrderRejectedEvent(byte[] b) throws Exception {
+        OrderRejectedEvent event = new JsonObject(Buffer.buffer(b)).mapTo(OrderRejectedEvent.class);
+
+        Thread.sleep(1000L);
+
         // refund the payment
         LOG.info("Refunding payment for order " + event.getOrderId());
     }

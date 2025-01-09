@@ -6,5 +6,5 @@ import lombok.Data;
 
 @Data
 public class AssignCourierRequest {
-    private UUID orderId;
+    private UUID courierId;
 }

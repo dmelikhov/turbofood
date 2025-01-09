@@ -6,7 +6,7 @@ and have it delivered to their doorstep.
 The application consists of multiple microservices that handle different aspects of the system,
 ensuring modularity and ease of maintenance.
 Key features include restaurant and menu management, order processing, payment handling,
-delivery logistics.
+delivery logistics, notifications.
 
 ---
 
@@ -21,6 +21,9 @@ Manages payment processing.
 
 ### **[Delivery Service](delivery-service/)**
 Manages delivery logistics.
+
+### **[Notification Service](notification-service/)**
+Manages order update notifications.
 
 ---
 

@@ -7,22 +7,13 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=secret
     volumes:
-      - ./postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql:z
-
-  adminer:
-    image: adminer
-    ports:
-      - 7001:8080
-    depends_on:
-      - postgres
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql
 
   rabbitmq:
-    image: rabbitmq:4.0-management
+    image: rabbitmq:4.0
     environment:
       - RABBITMQ_DEFAULT_USER=rabbitmq
       - RABBITMQ_DEFAULT_PASS=secret
-    ports:
-      - 7002:15672
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.0
@@ -38,6 +29,12 @@ services:
     depends_on:
       - postgres
 
+  eureka-server:
+    build:
+      context: ./eureka-server/
+    ports:
+      - 8761:8761
+
   restaurant-service:
     build:
       context: ./restaurant-service/
@@ -49,6 +46,7 @@ services:
     depends_on:
       - postgres
       - keycloak
+      - eureka-server
 
   order-service:
     build:
@@ -63,6 +61,7 @@ services:
       - postgres
       - rabbitmq
       - keycloak
+      - eureka-server
 
   delivery-service:
     build:
@@ -72,7 +71,7 @@ services:
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/turbofood
       - SPRING_RABBITMQ_ADDRESSES=amqp://rabbitmq:secret@rabbitmq
     ports:
-      - 9002:8080
+      - 9003:8080
     depends_on:
       - postgres
       - rabbitmq
@@ -81,10 +80,21 @@ services:
   payment-service:
     build:
       context: ./payment-mock/
-      dockerfile: src/main/docker/Dockerfile.jvm
     environment:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_USERNAME=rabbitmq
       - RABBITMQ_PASSWORD=secret
+    depends_on:
+      - rabbitmq
+
+  notification-service:
+    build:
+      context: ./notification-service/
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USERNAME=rabbitmq
+      - RABBITMQ_PASSWORD=secret
+    ports:
+      - 9004:8080
     depends_on:
       - rabbitmq
